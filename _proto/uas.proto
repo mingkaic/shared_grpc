@@ -1,0 +1,24 @@
+// uas.proto
+// videar
+// 
+// purpose:
+// define uas grpc procedures
+
+syntax = "proto3";
+
+import "common.proto";
+
+package uas;
+
+message SearchParams {
+    string query = 1;
+    int32 response_limit = 2;
+}
+
+service UnifiedAudioService {
+    rpc GetCaption (AudioRequest) returns (stream CaptionSegment);
+    
+    rpc GetPopular (Empty) returns (stream AudioResponse);
+
+    rpc Search (SearchParams) returns (stream AudioResponse);
+}

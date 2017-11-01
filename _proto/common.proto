@@ -1,0 +1,32 @@
+// common.proto
+// videar
+// 
+// purpose:
+// define common grpc procedures
+
+syntax = "proto3";
+
+message Empty {}
+
+message AudioRequest {
+    string id = 1;
+}
+
+message CaptionSegment {
+    string word = 1;
+    double start = 2;
+    double end = 2;
+}
+
+message AudioResponse {
+    enum AudioSource {
+        UPLOADED = 0;
+        YOUTUBE = 1;
+        AUDIOSEARCH = 2;
+        SYNTHESIZED = 3;
+    }
+
+    string id = 1;
+    string title = 2;
+    AudioSource source = 3;
+}

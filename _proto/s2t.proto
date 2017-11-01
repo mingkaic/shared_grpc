@@ -1,0 +1,17 @@
+// s2t.proto
+// videar
+// 
+// purpose:
+// define s2t grpc procedures
+
+syntax = "proto3";
+
+import "common.proto";
+
+package s2t;
+
+service Speech2TextService {
+    rpc ProcessSubtitles (AudioRequest) returns (stream CaptionSegment);
+
+    rpc ProcessAudioSynthesis (stream CaptionSegment) returns (AudioResponse);
+}

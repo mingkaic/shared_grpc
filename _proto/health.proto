@@ -1,0 +1,20 @@
+// health.proto
+// videar
+// 
+// purpose:
+// define health grpc procedures
+
+syntax = "proto3";
+
+import "common.proto";
+
+package health;
+
+message HealthError {
+    int32 type = 1;
+    string msg = 2;
+}
+
+service HealthService {
+    rpc LastError (Empty) returns (HealthError);
+}
