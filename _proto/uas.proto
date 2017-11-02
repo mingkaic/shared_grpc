@@ -13,6 +13,7 @@ package uas;
 message SearchParams {
     string query = 1;
     int32 response_limit = 2;
+    AudioSource source = 3;
 }
 
 service UnifiedAudioService {

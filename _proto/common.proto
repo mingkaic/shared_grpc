@@ -6,6 +6,13 @@
 
 syntax = "proto3";
 
+enum AudioSource {
+    UPLOADED = 0;
+    YOUTUBE = 1;
+    AUDIOSEARCH = 2;
+    SYNTHESIZED = 3;
+}
+
 message Empty {}
 
 message AudioRequest {
@@ -19,13 +26,6 @@ message CaptionSegment {
 }
 
 message AudioResponse {
-    enum AudioSource {
-        UPLOADED = 0;
-        YOUTUBE = 1;
-        AUDIOSEARCH = 2;
-        SYNTHESIZED = 3;
-    }
-
     string id = 1;
     string title = 2;
     AudioSource source = 3;
