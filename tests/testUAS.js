@@ -1,4 +1,5 @@
 const chai = require('chai');
+require('dotenv').load();
 
 const grpc = require('../index');
 const uas_routes = require('../mock_server/uas.routes');
