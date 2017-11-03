@@ -22,7 +22,7 @@ message AudioRequest {
 message CaptionSegment {
     string word = 1;
     double start = 2;
-    double end = 2;
+    double end = 3;
 }
 
 message AudioResponse {
