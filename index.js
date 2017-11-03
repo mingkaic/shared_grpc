@@ -1,5 +1,4 @@
 const grpc = require('grpc');
-const routes = require('./routes');
 
 const PROTO_DIR = __dirname + '/node_modules/shared_grpc/_proto';
 const HEALTH_PROTO_PATH = PROTO_DIR + '/health.proto';
