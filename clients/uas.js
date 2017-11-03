@@ -15,76 +15,112 @@ const credentials = grpc.credentials.createInsecure(); // todo: make secure
 const client = new uas_proto.UnifiedAudioService(UAS_URI, credentials);
 const health_cli = new health_proto.HealthService(UAS_URI, credentials);
 
-exports.lastError = (cb) => {
-	health_cli.lastError({}, (err, lastError) => {
-		if (err) {
-			throw err;
-		}
-		if (cb) {
-			cb(lastError);
-		}
+exports.reachable = () => {
+	return new Promise((resolve, reject) => {
+		health_cli.statusCheck({}, (err, response) => {
+			if (err) {
+				reject(err);
+			}
+			else {
+				resolve(response.status);
+			}
+		});
+	});
+};
+
+exports.lastError = () => {
+	return new Promise((resolve, reject) => {
+		health_cli.lastError({}, (err, response) => {
+			if (err) {
+				reject(err);
+			}
+			else {
+				resolve(response);
+			}
+		});
 	});
 };
 
 exports.getCaption = (audioRequest) => {
-	return new Promise((resolve, reject) => {
-		exports.lastError();
-		if (!audioRequest instanceof schemas.AudioRequest) {
-			reject("Error getCaption: bad audioRequest");
+	return exports.reachable()
+	.then((status) => {
+		if (status !== 'SERVING') {
+			throw "Error connection: cannot reach uas";
 		}
-		var call = client.getCaption(audioRequest);
+		if (!audioRequest instanceof schemas.AudioRequest) {
+			throw "Error getCaption: bad audioRequest";
+		}
+		var call = client.getCaption({
+			"id": audioRequest.id
+		});
 		var captions = [];
 		call.on('data', (captionResponse) => {
 			captions.push(captionResponse);
 		});
 
-		call.on('end', () => {
-			resolve(captions);
-		});
-
-		call.on('error', (err) => {
-			reject(err);
+		return new Promise((resolve, reject) => {
+			call.on('end', () => {
+				resolve(captions);
+			});
+	
+			call.on('error', (err) => {
+				reject(err);
+			});
 		});
 	});
 };
 
 exports.getPopular = () => {
-	return new Promise((resolve, reject) => {
-		exports.lastError();
+	return exports.reachable()
+	.then((status) => {
+		if (status !== 'SERVING') {
+			throw "Error connection: cannot reach uas";
+		}
 		var call = client.getPopular({});
 		var audios = [];
 		call.on('data', (audioResponse) => {
 			audios.push(audioResponse);
 		});
 
-		call.on('end', () => {
-			resolve(audios);
-		});
+		return new Promise((resolve, reject) => {
+			call.on('end', () => {
+				resolve(audios);
+			});
 
-		call.on('error', (err) => {
-			reject(err);
+			call.on('error', (err) => {
+				reject(err);
+			});
 		});
 	});
 };
 
 exports.search = (searchParams) => {
-	return new Promise((resolve, reject) => {
-		exports.lastError();
-		if (!searchParams instanceof schemas.SearchParams) {
-			reject("Error search: bad searchParams");
+	return exports.reachable()
+	.then((status) => {
+		if (status !== 'SERVING') {
+			throw "Error connection: cannot reach uas";
 		}
-		var call = client.search(searchParams);
+		if (!searchParams instanceof schemas.SearchParams) {
+			throw "Error search: bad searchParams";
+		}
+		var call = client.search({
+			"query": searchParams.query,
+			"response_limit": searchParams.response_limit,
+			"source": searchParams.source
+		});
 		var audios = [];
 		call.on('data', (audioResponse) => {
 			audios.push(audioResponse);
 		});
 
-		call.on('end', () => {
-			resolve(audios);
-		});
+		return new Promise((resolve, reject) => {
+			call.on('end', () => {
+				resolve(audios);
+			});
 
-		call.on('error', (err) => {
-			reject(err);
+			call.on('error', (err) => {
+				reject(err);
+			});
 		});
 	});
 };

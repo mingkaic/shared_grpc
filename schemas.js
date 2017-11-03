@@ -6,7 +6,8 @@ exports.AudioRequest = new SchemaObject({
 
 exports.SearchParams = new SchemaObject({
     "query": String,
-    "response_limit": Number
+    "response_limit": Number,
+    "source": String
 });
 
 exports.CaptionSegment = new SchemaObject({

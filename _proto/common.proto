@@ -7,10 +7,11 @@
 syntax = "proto3";
 
 enum AudioSource {
-    UPLOADED = 0;
+    UNKNOWN = 0;
     YOUTUBE = 1;
     AUDIOSEARCH = 2;
     SYNTHESIZED = 3;
+    UPLOADED = 4;
 }
 
 message Empty {}

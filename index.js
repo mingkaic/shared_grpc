@@ -1,19 +1,24 @@
 const grpc = require('grpc');
 
-const PROTO_DIR = __dirname + '/node_modules/shared_grpc/_proto';
+const PROTO_DIR = __dirname + '/_proto';
 const HEALTH_PROTO_PATH = PROTO_DIR + '/health.proto';
 const service_longname = {
     "uas": 'UnifiedAudioService',
-    "s2t": 'Speech2Text'
+    "s2t": 'Speech2TextService'
 };
 
+exports.schemas = require('./schemas');
 exports.s2t_cli = require('./clients/s2t');
 exports.uas_cli = require('./clients/uas');
 
-var lastError = { "type": 200, "msg": 'OK' };
+var last = { "type": 200, "msg": 'OK' };
 
-function lastError (call, callback) {
-    call(null, lastError);
+function statusCheck (_, callback) {
+    callback(null, { "status": 1 });
+}
+
+function lastError (_, callback) {
+    callback(null, last);
 }
 
 exports.logError = (status, msg) => {
@@ -40,6 +45,7 @@ exports.buildServer = (service, port, routes) => {
     
     server.addService(main_proto[longname].service, routes); // main service
     server.addService(health_proto.HealthService.service, {
+        "statusCheck": statusCheck,
         "lastError": lastError
     }); // health service
     

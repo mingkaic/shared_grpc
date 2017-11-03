@@ -8,66 +8,99 @@ const S2T_HOST = process.env.S2T_HOST || '0.0.0.0';
 const S2T_PORT = process.env.S2T_PORT || '8080';
 const S2T_URI = S2T_HOST + ':' + S2T_PORT;
 
-const s2t_proto = grpc.load(S2T_PROTO_PATH).S2T;
+const s2t_proto = grpc.load(S2T_PROTO_PATH).s2t;
 const health_proto = grpc.load(HEALTH_PROTO_PATH).health;
 const credentials = grpc.credentials.createInsecure(); // todo: make secure
 
-const client = new s2t_proto.UnifiedAudioService(S2T_URI, credentials);
+const client = new s2t_proto.Speech2TextService(S2T_URI, credentials);
 const health_cli = new health_proto.HealthService(S2T_URI, credentials);
 
-exports.lastError = (cb) => {
-	health_cli.lastError({}, (err, lastError) => {
-		if (err) {
-			throw err;
-		}
-		if (cb) {
-			cb(lastError);
-		}
+exports.reachable = () => {
+	return new Promise((resolve, reject) => {
+		health_cli.statusCheck({}, (err, response) => {
+			if (err) {
+				reject(err);
+			}
+			else {
+				resolve(response.status);
+			}
+		});
 	});
 };
 
-exports.processSubtitles = (audioRequest) => {
-    return new Promise((resolve, reject) => {
-        exports.lastError();
-        if (!audioRequest instanceof schemas.AudioRequest) {
-            reject("Error processSubtitles: bad audioRequest");
-        }
-        var call = client.processSubtitles(audioRequest);
-        var captions = [];
-        call.on('data', (captionSegment) => {
-            captions.push(captionSegment);
-        });
+exports.lastError = (cb) => {
+	return new Promise((resolve, reject) => {
+		health_cli.lastError({}, (err, response) => {
+			if (err) {
+				reject(err);
+			}
+			else {
+				resolve(response);
+			}
+		});
+	});
+};
 
-        call.on('end', () => {
-            resolve(captions);
-        });
-        
-        call.on('error', (err) => {
-            reject(err);
-        });
-    });
+exports.processCaptions = (audioRequest) => {
+	return exports.reachable()
+	.then((status) => {
+		if (status !== 'SERVING') {
+			throw "Error connection: cannot reach uas";
+		}
+		if (!audioRequest instanceof schemas.AudioRequest) {
+			throw "Error processCaptions: bad audioRequest";
+		}
+		var call = client.processCaptions({
+			"id": audioRequest.id
+		});
+		var captions = [];
+		call.on('data', (captionSegment) => {
+			captions.push(captionSegment);
+		});
+		
+		return new Promise((resolve, reject) => {
+			call.on('end', () => {
+				resolve(captions);
+			});
+			
+			call.on('error', (err) => {
+				reject(err);
+			});
+		});
+	});
+	
 };
 
 exports.processAudioSynthesis = (captions) => {
-    return new Promise((resolve, reject) => {
-        exports.lastError();
-        if (!(captions instanceof Array) || 
-            0 === captions.length || 
-            !(captions[0] instanceof schemas.CaptionSegment)) {
-            reject("Error processAudioSynthesis: bad captions");
-        }
-        var call = client.processAudioSynthesis((err, audioResponse) => {
-            if (err) {
-                reject(err);
-            }
-            else {
-                resolve(audioResponse);
-            }
-        });
+	return exports.reachable()
+	.then((status) => {
+		if (status !== 'SERVING') {
+			throw "Error connection: cannot reach uas";
+		}
+		if (!(captions instanceof Array) || 
+			0 === captions.length || 
+			!(captions[0] instanceof schemas.CaptionSegment)) {
+			throw "Error processAudioSynthesis: bad captions";
+		}
 
-        captions.forEach((captionSegment) => {
-            call.write(captionSegment);
-        });
-        call.end();
-    });
+		return new Promise((resolve, reject) => {
+			var call = client.processAudioSynthesis((err, audioResponse) => {
+				if (err) {
+					reject(err);
+				}
+				else {
+					resolve(audioResponse);
+				}
+			});
+	
+			captions.forEach((captionSegment) => {
+				call.write({
+					"word": captionSegment.word,
+					"start": captionSegment.start,
+					"end": captionSegment.end
+				});
+			});
+			call.end();
+		});
+	});
 };
