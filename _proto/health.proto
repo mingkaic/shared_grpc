@@ -11,21 +11,21 @@ import "common.proto";
 package health;
 
 message HealthError {
-    int32 type = 1;
-    string msg = 2;
+	int32 type = 1;
+	string msg = 2;
 }
 
 message HealthStatus {
-    enum ServingStatus {
-        UNKNOWN = 0;
-        SERVING = 1;
-        NOT_SERVING = 2;
-    }
-    ServingStatus status = 1;
+	enum ServingStatus {
+		UNKNOWN = 0;
+		SERVING = 1;
+		NOT_SERVING = 2;
+	}
+	ServingStatus status = 1;
 }
 
 service HealthService {
-    rpc StatusCheck (Empty) returns (HealthStatus);
+	rpc StatusCheck (Empty) returns (HealthStatus);
 
-    rpc LastError (Empty) returns (HealthError);
+	rpc LastError (Empty) returns (HealthError);
 }

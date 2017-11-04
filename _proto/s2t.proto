@@ -11,7 +11,7 @@ import "common.proto";
 package s2t;
 
 service Speech2TextService {
-    rpc ProcessCaptions (AudioRequest) returns (stream CaptionSegment);
+	rpc ProcessCaptions (AudioRequest) returns (stream CaptionSegment);
 
-    rpc ProcessAudioSynthesis (stream MixedCaptionRequest) returns (AudioResponse);
+	rpc ProcessAudioSynthesis (stream MixedCaptionRequest) returns (AudioResponse);
 }
