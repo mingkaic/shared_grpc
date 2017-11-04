@@ -26,6 +26,11 @@ message CaptionSegment {
     double end = 3;
 }
 
+message MixedCaptionRequest {
+    CaptionSegment content = 1;
+    string id = 2;
+}
+
 message AudioResponse {
     string id = 1;
     string title = 2;

@@ -13,5 +13,5 @@ package s2t;
 service Speech2TextService {
     rpc ProcessCaptions (AudioRequest) returns (stream CaptionSegment);
 
-    rpc ProcessAudioSynthesis (stream CaptionSegment) returns (AudioResponse);
+    rpc ProcessAudioSynthesis (stream MixedCaptionRequest) returns (AudioResponse);
 }

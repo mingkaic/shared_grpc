@@ -79,7 +79,7 @@ exports.processAudioSynthesis = (captions) => {
 		}
 		if (!(captions instanceof Array) || 
 			0 === captions.length || 
-			!(captions[0] instanceof schemas.CaptionSegment)) {
+			!(captions[0] instanceof schemas.MixedCaptionRequest)) {
 			throw "Error processAudioSynthesis: bad captions";
 		}
 
@@ -95,9 +95,12 @@ exports.processAudioSynthesis = (captions) => {
 	
 			captions.forEach((captionSegment) => {
 				call.write({
-					"word": captionSegment.word,
-					"start": captionSegment.start,
-					"end": captionSegment.end
+					"id": captionSegment.id,
+					"content": {
+						"word": captionSegment.word,
+						"start": captionSegment.start,
+						"end": captionSegment.end
+					}
 				});
 			});
 			call.end();

@@ -55,7 +55,8 @@ describe('Mock S2T E2E', function() {
 
 	it('processAudioSynthesis should return audio designated in s2t_routes', function(done) {
 		client.processAudioSynthesis([
-			new schemas.CaptionSegment({
+			new schemas.MixedCaptionRequest({
+				"id": 'mock_synthinput_id',
 				"word": 'mock_subtitle',
 				"start": 42,
 				"end": 1337

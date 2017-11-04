@@ -10,7 +10,8 @@ exports.SearchParams = new SchemaObject({
     "source": String
 });
 
-exports.CaptionSegment = new SchemaObject({
+exports.MixedCaptionRequest = new SchemaObject({
+    "id": String,
     "word": String,
     "start": Number,
     "end": Number
