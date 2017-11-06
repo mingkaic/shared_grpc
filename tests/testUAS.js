@@ -70,7 +70,7 @@ describe('Mock UAS E2E', function() {
 		client.search(new schemas.SearchParams({
 			"query": 'doesnt matter',
 			"response_limit": 100,
-			"source": 0
+			"source": 'UNKNOWN'
 		}))
 		.then((audios) => {
 			expect(audios.length).to.equal(1);

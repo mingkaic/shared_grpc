@@ -28,7 +28,7 @@ exports.reachable = () => {
 	});
 };
 
-exports.lastError = (cb) => {
+exports.lastError = () => {
 	return new Promise((resolve, reject) => {
 		health_cli.lastError({}, (err, response) => {
 			if (err) {
